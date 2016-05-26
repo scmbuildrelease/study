@@ -45,42 +45,59 @@ import sys
 # and builds and returns a word/count dict for it.
 # Then print_words() and print_top() can just call the utility function.
 
-###print_words(filename)
+#### LAB(begin solution)
+
+def word_count_dict(filename):
+  """Returns a word/count dict for this filename."""
+  # Utility used by count() and Topcount().
+  word_count = {}  # Map each word to its count
+  input_file = open(filename, 'r')
+  for line in input_file:
+    words = line.split()
+    for word in words:
+      word = word.lower()
+      # Special case if we're seeing this word for the first time.
+      if not word in word_count:
+        word_count[word] = 1
+      else:
+        word_count[word] = word_count[word] + 1
+  input_file.close()  # Not strictly required, but good form.
+  return word_count
 
 
 def print_words(filename):
-  hashtext={}
-  f = open(filename, 'rU')
-  for line in f:
-    str=line.split()
-    for strkey in str:
-      if strkey in hashtext:
-        hashtext[strkey]+=1
-      else:
-        hashtext[strkey]=1
-  f.close()
-  print(hashtext)
-  return hashtext
+  """Prints one per line '<word> <count>' sorted by word for the given file."""
+  word_count = word_count_dict(filename)
+  words = sorted(word_count.keys())
+  for word in words:
+    print word, word_count[word]
+
+
+def get_count(word_count_tuple):
+  """Returns the count from a dict word/count tuple  -- used for custom sort."""
+  return word_count_tuple[1]
+
 
 def print_top(filename):
-  dictnew={}
-  dictsort=print_words(filename)
-  dictnew=sorted(dictsort.items(), key=lambda t:t[1], reverse=True)[:5]
-  print(dictnew)
+  """Prints the top count listing for the given file."""
+  word_count = word_count_dict(filename)
 
-  return dictnew
+  # Each item is a (word, count) tuple.
+  # Sort them so the big counts are first using key=get_count() to extract count.
+  items = sorted(word_count.items(), key=get_count, reverse=True)
 
-"""
-  for key, value in sorted(hashtext.iteritems(), key=lambda (k, v): (v, k)):
-    print ("%s: %s" % (key, value))
+  # Print the first 20
+  for item in items[:20]:
+    print item[0], item[1]
 
-"""
+##### LAB(end solution)
+
 
 # This basic command line argument parsing code is provided and
 # calls the print_words() and print_top() functions which you must define.
 def main():
   if len(sys.argv) != 3:
-    print ('usage: ./wordcount.py {--count | --topcount} file')
+    print 'usage: ./wordcount.py {--count | --topcount} file'
     sys.exit(1)
 
   option = sys.argv[1]
@@ -90,7 +107,7 @@ def main():
   elif option == '--topcount':
     print_top(filename)
   else:
-    print ('unknown option: ' + option)
+    print 'unknown option: ' + option
     sys.exit(1)
 
 if __name__ == '__main__':
